@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a2f38" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Fairline Targa 43 — Vinterklargøring</title>
+  <style>
+    :root {
+      --ink: #12262c;
+      --ink-soft: #3a545c;
+      --foam: #f3f7f6;
+      --foam-dim: rgba(243, 247, 246, 0.72);
+      --sea-deep: #0a2f38;
+      --sea: #134652;
+      --sea-mid: #1a5c6a;
+      --ice: #9ec9c4;
+      --copper: #c56a3a;
+      --copper-deep: #9a4a22;
+      --ok: #2f8f6b;
+      --line: rgba(18, 38, 44, 0.12);
+      --tap: 48px;
+      --radius: 14px;
+      --shadow: 0 18px 40px rgba(8, 28, 34, 0.18);
+      --font-display: "Avenir Next Condensed", "Avenir Next", "Futura Condensed", "Futura", "Century Gothic", "Gill Sans", sans-serif;
+      --font-body: "Avenir Next", "Gill Sans", "Segoe UI", "Trebuchet MS", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-weight: 450;
+      line-height: 1.45;
+      background:
+        radial-gradient(120% 80% at 10% -10%, rgba(158, 201, 196, 0.35), transparent 55%),
+        radial-gradient(90% 70% at 100% 0%, rgba(197, 106, 58, 0.18), transparent 45%),
+        linear-gradient(165deg, #0a2f38 0%, #134652 38%, #1e6a6e 72%, #2a7a72 100%);
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.07;
+      background-image:
+        repeating-linear-gradient(
+          -18deg,
+          transparent 0 11px,
+          rgba(255, 255, 255, 0.35) 11px 12px
+        );
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: max(0.75rem, env(safe-area-inset-top)) 1rem max(2.5rem, env(safe-area-inset-bottom));
+    }
+
+    .masthead {
+      padding: 1.1rem 0.15rem 0.85rem;
+      color: var(--foam);
+      animation: rise-in 0.55s ease-out both;
+    }
+
+    .brand {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.85rem, 7.2vw, 2.55rem);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 0.98;
+      text-wrap: balance;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.42em;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ice);
+      opacity: 0.95;
+    }
+
+    .lede {
+      margin: 0.7rem 0 0;
+      max-width: 28ch;
+      color: var(--foam-dim);
+      font-size: 0.95rem;
+    }
+
+    .progress-bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 0.85rem 0 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius);
+      background: rgba(243, 247, 246, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      animation: rise-in 0.65s 0.08s ease-out both;
+    }
+
+    .progress-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .progress-label {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .progress-count {
+      font-variant-numeric: tabular-nums;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .track {
+      height: 0.55rem;
+      border-radius: 999px;
+      background: rgba(18, 38, 44, 0.1);
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--sea-mid), var(--ok));
+      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.65rem;
+    }
+
+    .btn-reset {
+      appearance: none;
+      border: 1px solid rgba(18, 38, 44, 0.18);
+      background: transparent;
+      color: var(--ink-soft);
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 0.75rem;
+      border-radius: 999px;
+      min-height: 2.4rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-reset:hover,
+    .btn-reset:focus-visible {
+      background: rgba(197, 106, 58, 0.12);
+      border-color: rgba(197, 106, 58, 0.45);
+      color: var(--copper-deep);
+      outline: none;
+    }
+
+    .sections {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .section {
+      border-radius: calc(var(--radius) + 2px);
+      background: rgba(243, 247, 246, 0.96);
+      box-shadow: 0 10px 28px rgba(8, 28, 34, 0.14);
+      overflow: clip;
+      animation: rise-in 0.55s ease-out both;
+    }
+
+    .section:nth-child(1) { animation-delay: 0.12s; }
+    .section:nth-child(2) { animation-delay: 0.17s; }
+    .section:nth-child(3) { animation-delay: 0.22s; }
+    .section:nth-child(4) { animation-delay: 0.27s; }
+    .section:nth-child(5) { animation-delay: 0.32s; }
+
+    .section-head {
+      padding: 0.95rem 1rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(120deg, rgba(19, 70, 82, 0.08), transparent 55%),
+        var(--foam);
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.28rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1.15;
+    }
+
+    .section-meta {
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--sea);
+      background: rgba(19, 70, 82, 0.08);
+      padding: 0.28rem 0.55rem;
+      border-radius: 999px;
+    }
+
+    .section-note {
+      margin: 0.45rem 0 0;
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+    }
+
+    .dual-legend {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--sea-deep);
+      background: rgba(158, 201, 196, 0.35);
+      border: 1px solid rgba(19, 70, 82, 0.12);
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+    }
+
+    .items { list-style: none; margin: 0; padding: 0.25rem 0; }
+
+    .item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.55rem 0.75rem;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      border-top: 1px solid var(--line);
+      transition: background 0.25s ease;
+    }
+
+    .item:first-child { border-top: 0; }
+
+    .item.is-done {
+      background: rgba(47, 143, 107, 0.08);
+    }
+
+    .item-label {
+      font-size: 1.02rem;
+      font-weight: 550;
+      line-height: 1.3;
+      transition: color 0.25s ease, opacity 0.25s ease;
+    }
+
+    .item.is-done .item-label {
+      color: var(--ink-soft);
+      text-decoration: line-through;
+      text-decoration-thickness: 1.5px;
+      text-decoration-color: rgba(47, 143, 107, 0.55);
+      opacity: 0.78;
+    }
+
+    .checks {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .check {
+      position: relative;
+      width: var(--tap);
+      min-width: var(--tap);
+      height: var(--tap);
+      margin: 0;
+      padding: 0;
+      border: 2px solid rgba(19, 70, 82, 0.28);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--sea-deep);
+      font: inherit;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition:
+        background 0.22s ease,
+        border-color 0.22s ease,
+        color 0.22s ease,
+        transform 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .check:active { transform: scale(0.94); }
+
+    .check:focus-visible {
+      outline: 3px solid rgba(197, 106, 58, 0.45);
+      outline-offset: 2px;
+    }
+
+    .check[aria-pressed="true"] {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #fff;
+      animation: pop-check 0.32s cubic-bezier(0.22, 1.4, 0.36, 1);
+    }
+
+    .check.single {
+      width: var(--tap);
+      font-size: 0;
+    }
+
+    .check.single::after {
+      content: "";
+      width: 0.7rem;
+      height: 1.15rem;
+      border-right: 3px solid transparent;
+      border-bottom: 3px solid transparent;
+      transform: translateY(-0.1rem) rotate(40deg);
+      transition: border-color 0.15s ease;
+    }
+
+    .check.single[aria-pressed="true"]::after {
+      border-color: #fff;
+    }
+
+    .foot {
+      margin: 1.4rem 0.15rem 0;
+      color: rgba(243, 247, 246, 0.62);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pop-check {
+      0% { transform: scale(0.86); }
+      70% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    @media (min-width: 640px) {
+      .app { padding-top: 1.5rem; }
+      .item { padding: 0.95rem 1.15rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="masthead">
+      <h1 class="brand">
+        Fairline Targa 43
+        <span>Vinterklargøring · 2002</span>
+      </h1>
+      <p class="lede">Konserverings-tjekliste til værftet og båden — tryk for at afkrydse.</p>
+    </header>
+
+    <div class="progress-bar" aria-live="polite">
+      <div class="progress-top">
+        <div class="progress-label">Samlet fremgang</div>
+        <div class="progress-count" id="overall-count">0 / 0</div>
+      </div>
+      <div class="track" aria-hidden="true">
+        <div class="fill" id="overall-fill"></div>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn-reset" id="reset-btn">Nulstil alle</button>
+      </div>
+    </div>
+
+    <main class="sections" id="sections" aria-label="Tjekliste"></main>
+
+    <p class="foot">Baseret på svensk konserveringsark · gemmes lokalt på denne enhed</p>
+  </div>
+
+  <script>
+    /**
+     * Oversat fra internal/konservering-8978.xlsx (Blad1).
+     * dual: "bs" = bagbord/styrbord, "kv" = kold/varm, null = enkelt afkrydsning.
+     */
+    const STORAGE_KEY = "fairline-targa43-vinterklargoring-v1";
+
+    const DATA = [
+      {
+        id: "hovedmotor",
+        title: "Hovedmotor × 2",
+        note: "50 liter glykolblanding",
+        dual: "bs",
+        items: [
+          { id: "hm-soevand", label: "Søvandskonservering" },
+          { id: "hm-dosering", label: "20 liter styrbord, 30 liter bagbord" },
+          { id: "hm-indtag", label: "Indsugning bag motorerne" }
+        ]
+      },
+      {
+        id: "elvaerk",
+        title: "Elværk",
+        note: null,
+        dual: null,
+        items: [
+          { id: "ev-indtag-koel", label: "Indsugning motor + kølesystem" },
+          { id: "ev-ventil", label: "Søvandsindsugningsventil" },
+          { id: "ev-foran", label: "Indsugning foran elværket" }
+        ]
+      },
+      {
+        id: "ferskvand",
+        title: "Ferskvand",
+        note: "4 × Starbrite 3,8 liter",
+        dual: "kv",
+        items: [
+          { id: "fv-blanding", label: "4 × Starbrite + 3 × vand" },
+          { id: "fv-vask-b", label: "Håndvask toilet bagbord" },
+          { id: "fv-vask-s", label: "Håndvask toilet styrbord" },
+          { id: "fv-bruser-b", label: "Bruser på toilettet bagbord" },
+          { id: "fv-bruser-s", label: "Bruser på toilettet styrbord" },
+          { id: "fv-agter", label: "Agterbruser" },
+          { id: "fv-koekken", label: "Køkkenvask" },
+          { id: "fv-cockpit", label: "Cockpitvask" },
+          { id: "fv-opvask", label: "Opvaskemaskinen kør 15 min" },
+          { id: "fv-motorrum", label: "Udtag motorrum" },
+          { id: "fv-vv", label: "VV-beholder tømning" },
+          { id: "fv-tryk", label: "Efterlad uden tryk" }
+        ]
+      },
+      {
+        id: "vakuumtoa",
+        title: "Vakuumtoilet × 2",
+        note: null,
+        dual: "bs",
+        items: [
+          { id: "vt-ferskvand", label: "Ferskvand ind 2 stk. systemer" },
+          { id: "vt-skvaet", label: "Efterlad en skvæt i toilettet" },
+          { id: "vt-pumpe", label: "Toiletpumpe — løsn slange" },
+          { id: "vt-daek", label: "Dæktømning skvæt" }
+        ]
+      },
+      {
+        id: "varme-ac",
+        title: "Varmeapparat / AC",
+        note: null,
+        dual: null,
+        items: [
+          { id: "ac-soevand", label: "Søvand ind med 2 stk. AC" },
+          { id: "ac-indtag", label: "Indsugning under agterkoj" },
+          { id: "ac-toem-for", label: "Tøm AC for vand — for" },
+          { id: "ac-toem-agter", label: "Tøm AC for vand — agter" }
+        ]
+      }
+    ];
+
+    const DUAL_KEYS = {
+      bs: [
+        { key: "b", short: "B", aria: "Bagbord" },
+        { key: "s", short: "S", aria: "Styrbord" }
+      ],
+      kv: [
+        { key: "k", short: "K", aria: "Kold" },
+        { key: "v", short: "V", aria: "Varm" }
+      ]
+    };
+
+    function allCheckKeys() {
+      const keys = [];
+      for (const section of DATA) {
+        for (const item of section.items) {
+          if (section.dual) {
+            for (const side of DUAL_KEYS[section.dual]) {
+              keys.push(`${item.id}:${side.key}`);
+            }
+          } else {
+            keys.push(`${item.id}:x`);
+          }
+        }
+      }
+      return keys;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveState(state) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {
+        /* ignore quota / private mode */
+      }
+    }
+
+    let state = loadState();
+
+    function isOn(key) {
+      return !!state[key];
+    }
+
+    function setOn(key, value) {
+      if (value) state[key] = true;
+      else delete state[key];
+      saveState(state);
+    }
+
+    function itemDone(section, item) {
+      if (!section.dual) return isOn(`${item.id}:x`);
+      return DUAL_KEYS[section.dual].every((side) => isOn(`${item.id}:${side.key}`));
+    }
+
+    function sectionStats(section) {
+      let done = 0;
+      let total = 0;
+      for (const item of section.items) {
+        if (section.dual) {
+          for (const side of DUAL_KEYS[section.dual]) {
+            total += 1;
+            if (isOn(`${item.id}:${side.key}`)) done += 1;
+          }
+        } else {
+          total += 1;
+          if (isOn(`${item.id}:x`)) done += 1;
+        }
+      }
+      return { done, total };
+    }
+
+    function overallStats() {
+      return DATA.reduce(
+        (acc, section) => {
+          const s = sectionStats(section);
+          acc.done += s.done;
+          acc.total += s.total;
+          return acc;
+        },
+        { done: 0, total: 0 }
+      );
+    }
+
+    function render() {
+      const root = document.getElementById("sections");
+      root.replaceChildren();
+
+      for (const section of DATA) {
+        const stats = sectionStats(section);
+        const sectionEl = document.createElement("section");
+        sectionEl.className = "section";
+        sectionEl.dataset.sectionId = section.id;
+
+        const head = document.createElement("div");
+        head.className = "section-head";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "section-title-row";
+
+        const h2 = document.createElement("h2");
+        h2.className = "section-title";
+        h2.textContent = section.title;
+
+        const meta = document.createElement("div");
+        meta.className = "section-meta";
+        meta.textContent = `${stats.done}/${stats.total}`;
+        meta.setAttribute("aria-label", `${stats.done} af ${stats.total} i ${section.title}`);
+
+        titleRow.append(h2, meta);
+        head.append(titleRow);
+
+        if (section.note) {
+          const note = document.createElement("p");
+          note.className = "section-note";
+          note.textContent = section.note;
+          head.append(note);
+        }
+
+        if (section.dual === "bs") {
+          const legend = document.createElement("div");
+          legend.className = "dual-legend";
+          legend.innerHTML =
+            '<span class="chip">B · Bagbord</span><span class="chip">S · Styrbord</span>';
+          head.append(legend);
+        } else if (section.dual === "kv") {
+          const legend = document.createElement("div");
+          legend.className = "dual-legend";
+          legend.innerHTML =
+            '<span class="chip">K · Kold</span><span class="chip">V · Varm</span>';
+          head.append(legend);
+        }
+
+        const ul = document.createElement("ul");
+        ul.className = "items";
+
+        for (const item of section.items) {
+          const li = document.createElement("li");
+          li.className = "item" + (itemDone(section, item) ? " is-done" : "");
+
+          const label = document.createElement("div");
+          label.className = "item-label";
+          label.id = `label-${item.id}`;
+          label.textContent = item.label;
+
+          const checks = document.createElement("div");
+          checks.className = "checks";
+
+          if (section.dual) {
+            for (const side of DUAL_KEYS[section.dual]) {
+              const key = `${item.id}:${side.key}`;
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "check";
+              btn.textContent = side.short;
+              btn.setAttribute("aria-pressed", isOn(key) ? "true" : "false");
+              btn.setAttribute(
+                "aria-label",
+                `${item.label}, ${side.aria}`
+              );
+              btn.addEventListener("click", () => {
+                setOn(key, !isOn(key));
+                updateUI();
+              });
+              checks.append(btn);
+            }
+          } else {
+            const key = `${item.id}:x`;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "check single";
+            btn.setAttribute("aria-pressed", isOn(key) ? "true" : "false");
+            btn.setAttribute("aria-labelledby", label.id);
+            btn.addEventListener("click", () => {
+              setOn(key, !isOn(key));
+              updateUI();
+            });
+            checks.append(btn);
+          }
+
+          li.append(label, checks);
+          ul.append(li);
+        }
+
+        sectionEl.append(head, ul);
+        root.append(sectionEl);
+      }
+
+      updateProgressOnly();
+    }
+
+    function updateProgressOnly() {
+      const { done, total } = overallStats();
+      document.getElementById("overall-count").textContent = `${done} / ${total}`;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("overall-fill").style.width = `${pct}%`;
+    }
+
+    function updateUI() {
+      for (const section of DATA) {
+        const sectionEl = document.querySelector(`[data-section-id="${section.id}"]`);
+        if (!sectionEl) continue;
+        const stats = sectionStats(section);
+        const meta = sectionEl.querySelector(".section-meta");
+        if (meta) meta.textContent = `${stats.done}/${stats.total}`;
+
+        const items = sectionEl.querySelectorAll(".item");
+        section.items.forEach((item, idx) => {
+          const li = items[idx];
+          if (!li) return;
+          li.classList.toggle("is-done", itemDone(section, item));
+          const buttons = li.querySelectorAll(".check");
+          if (section.dual) {
+            DUAL_KEYS[section.dual].forEach((side, i) => {
+              const key = `${item.id}:${side.key}`;
+              buttons[i]?.setAttribute("aria-pressed", isOn(key) ? "true" : "false");
+            });
+          } else {
+            buttons[0]?.setAttribute(
+              "aria-pressed",
+              isOn(`${item.id}:x`) ? "true" : "false"
+            );
+          }
+        });
+      }
+      updateProgressOnly();
+    }
+
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      const ok = window.confirm(
+        "Nulstil hele tjeklisten? Alle afkrydsninger slettes på denne enhed."
+      );
+      if (!ok) return;
+      state = {};
+      saveState(state);
+      updateUI();
+    });
+
+    // Sanity: ensure we know expected totals
+    void allCheckKeys;
+
+    render();
+  </script>
+</body>
+</html>
