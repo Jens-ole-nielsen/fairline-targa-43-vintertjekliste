@@ -297,6 +297,18 @@
       align-items: center;
     }
 
+    /* Dual rows share one B|S (or K|V) column so a single-side item still lines up. */
+    .checks.dual {
+      display: grid;
+      grid-template-columns: var(--tap) var(--tap);
+    }
+
+    .check[data-side="b"],
+    .check[data-side="k"] { grid-column: 1; }
+
+    .check[data-side="s"],
+    .check[data-side="v"] { grid-column: 2; }
+
     .check {
       position: relative;
       width: var(--tap);
@@ -421,6 +433,7 @@
     /**
      * Oversat fra internal/konservering-8978.xlsx (Blad1).
      * dual: "bs" = bagbord/styrbord, "kv" = kold/varm, null = enkelt afkrydsning.
+     * items[].sides: valgfrit udsnit af sektionens sider, fx ["s"] kun styrbord.
      */
     const STORAGE_KEY = "fairline-targa43-vinterklargoring-v1";
 
@@ -431,9 +444,10 @@
         note: "50 liter glykolblanding",
         dual: "bs",
         items: [
-          { id: "hm-soevand", label: "Søvandskonservering" },
-          { id: "hm-dosering", label: "20 liter styrbord, 30 liter bagbord" },
-          { id: "hm-indtag", label: "Indsugning bag motorerne" }
+          { id: "hm-motor-s", label: "Styrbords motor — 20 liter", sides: ["s"] },
+          { id: "hm-motor-b", label: "Bagbords motor — 30 liter", sides: ["b"] },
+          { id: "hm-indtag", label: "Indsugning gennem søvandsfiltre" },
+          { id: "hm-filtre", label: "Rensning af søvandsfiltre" }
         ]
       },
       {
@@ -504,14 +518,21 @@
       ]
     };
 
+    function sidesFor(section, item) {
+      if (!section.dual) return null;
+      const all = DUAL_KEYS[section.dual];
+      if (!item.sides) return all;
+      const wanted = new Set(item.sides);
+      return all.filter((side) => wanted.has(side.key));
+    }
+
     function allCheckKeys() {
       const keys = [];
       for (const section of DATA) {
         for (const item of section.items) {
-          if (section.dual) {
-            for (const side of DUAL_KEYS[section.dual]) {
-              keys.push(`${item.id}:${side.key}`);
-            }
+          const sides = sidesFor(section, item);
+          if (sides) {
+            for (const side of sides) keys.push(`${item.id}:${side.key}`);
           } else {
             keys.push(`${item.id}:x`);
           }
@@ -552,16 +573,18 @@
     }
 
     function itemDone(section, item) {
-      if (!section.dual) return isOn(`${item.id}:x`);
-      return DUAL_KEYS[section.dual].every((side) => isOn(`${item.id}:${side.key}`));
+      const sides = sidesFor(section, item);
+      if (!sides) return isOn(`${item.id}:x`);
+      return sides.every((side) => isOn(`${item.id}:${side.key}`));
     }
 
     function sectionStats(section) {
       let done = 0;
       let total = 0;
       for (const item of section.items) {
-        if (section.dual) {
-          for (const side of DUAL_KEYS[section.dual]) {
+        const sides = sidesFor(section, item);
+        if (sides) {
+          for (const side of sides) {
             total += 1;
             if (isOn(`${item.id}:${side.key}`)) done += 1;
           }
@@ -649,12 +672,15 @@
           const checks = document.createElement("div");
           checks.className = "checks";
 
-          if (section.dual) {
-            for (const side of DUAL_KEYS[section.dual]) {
+          const sides = sidesFor(section, item);
+          if (sides) {
+            checks.classList.add("dual");
+            for (const side of sides) {
               const key = `${item.id}:${side.key}`;
               const btn = document.createElement("button");
               btn.type = "button";
               btn.className = "check";
+              btn.dataset.side = side.key;
               btn.textContent = side.short;
               btn.setAttribute("aria-pressed", isOn(key) ? "true" : "false");
               btn.setAttribute(
@@ -712,14 +738,15 @@
           const li = items[idx];
           if (!li) return;
           li.classList.toggle("is-done", itemDone(section, item));
-          const buttons = li.querySelectorAll(".check");
-          if (section.dual) {
-            DUAL_KEYS[section.dual].forEach((side, i) => {
+          const sides = sidesFor(section, item);
+          if (sides) {
+            for (const side of sides) {
               const key = `${item.id}:${side.key}`;
-              buttons[i]?.setAttribute("aria-pressed", isOn(key) ? "true" : "false");
-            });
+              li.querySelector(`.check[data-side="${side.key}"]`)
+                ?.setAttribute("aria-pressed", isOn(key) ? "true" : "false");
+            }
           } else {
-            buttons[0]?.setAttribute(
+            li.querySelector(".check")?.setAttribute(
               "aria-pressed",
               isOn(`${item.id}:x`) ? "true" : "false"
             );
